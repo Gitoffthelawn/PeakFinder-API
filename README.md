@@ -218,6 +218,26 @@ panel.registerCommandsCallback(function(cmd) {
   console.log(cmd)
 })
 ```
+<a name="module_PeakFinder..updateData"></a>
+
+### PeakFinder~updateData()
+Loads the newest elevation (dem), place (met) and map (pvt) tiles, the way the update function
+of the PeakFinder mobile apps does. Available on both panel types, and in both cases it covers
+everything the panel has stored rather than only what is on screen: a panorama panel updates
+every tile in its databases, a map panel every tile in its cache.
+
+Only tiles whose local version is older than the published one are fetched, so a call with
+nothing to update costs a few index requests and no more. The panel keeps drawing throughout and
+redraws with the new data once the download finishes; there is nothing to await.
+
+Call it after init(), and only when the user asked for it - it is a download.
+
+**Example**  
+```js
+document.getElementById('update').addEventListener('click', function () {
+  panel.updateData()
+})
+```
 <a name="module_PeakFinder..init"></a>
 
 ### PeakFinder~init(callback)
@@ -644,6 +664,33 @@ Removes an overlay and frees its document.
 Gets the names of the overlays currently on the map, in the order they were added.
 
 **Returns**: <code>Array</code> - the overlay ids (e.g. ['best', 'vfpv3'])  
+<a name="module_PeakFinder.MapPanel..setElevationBand"></a>
+
+### PeakFinder.MapPanel~setElevationBand(lower, upper, options)
+Colours the terrain by elevation: everything at or below <code>lower</code> metres in one colour,
+everything at or above <code>upper</code> metres in another. The terrain in between and the sea
+stay untinted. Pass <code>null</code> for a limit to switch it off; with both off the band is
+removed. The band is drawn below the labels and survives a <code>mapstyle</code> change.
+
+Cheap enough to call on every event of a slider.
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| lower | <code>number</code> | The lower limit in metres, or null |
+| upper | <code>number</code> | The upper limit in metres, or null |
+| options | <code>Object</code> | Colours. Optional |
+| options.belowColor | <code>string</code> | CSS colour for the terrain below <code>lower</code>. Default: <code>'rgba(42,198,255,0.63)'</code>. <code>#rrggbbaa</code> is not supported |
+| options.aboveColor | <code>string</code> | CSS colour for the terrain above <code>upper</code>. Default: <code>'rgba(255,42,98,0.63)'</code> |
+
+**Example**  
+```js
+panel.setElevationBand(1500, 3000)
+
+panel.setElevationBand(null, 2500, { aboveColor: 'rgba(255,160,0,0.75)' })
+
+panel.setElevationBand(null, null) // off
+```
 <a name="module_PeakFinder.MapPanel..queryFeatures"></a>
 
 ### PeakFinder.MapPanel~queryFeatures(x, y) ⇒ <code>Array</code>
